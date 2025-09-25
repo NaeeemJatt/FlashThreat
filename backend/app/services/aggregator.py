@@ -165,8 +165,8 @@ class FlashThreatAggregator:
             latency_ms = int((time.time() - start_time) * 1000)
             normalized.latency_ms = latency_ms
             
-            # Convert to dict
-            result = normalized.to_dict(include_raw=False)
+            # Convert to dict with raw data
+            result = normalized.to_dict(include_raw=True)
             
             # Cache the result
             await self.cache.set_provider_result(

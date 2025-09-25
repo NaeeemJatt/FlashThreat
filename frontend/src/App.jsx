@@ -5,6 +5,7 @@ import Layout from './components/Layout/Layout';
 import HomePage from './pages/HomePage';
 import BulkPage from './pages/BulkPage';
 import HistoryPage from './pages/HistoryPage';
+import ApiDataPage from './pages/ApiDataPage';
 import LoginPage from './pages/LoginPage';
 import { AuthProvider } from './lib/auth';
 import ProtectedRoute from './components/Auth/ProtectedRoute';
@@ -25,6 +26,7 @@ function App() {
           <Route index element={<HomePage />} />
           <Route path="bulk" element={<BulkPage />} />
           <Route path="history" element={<HistoryPage />} />
+          <Route path="api-data/:ioc?" element={<ApiDataPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Routes>

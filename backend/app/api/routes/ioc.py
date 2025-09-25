@@ -47,6 +47,7 @@ async def check_ioc(
 async def stream_ioc(
     ioc: str = Query(..., description="IOC to check"),
     force_refresh: bool = Query(False, description="Whether to force refresh the cache"),
+    show_raw: bool = Query(False, description="Include raw API responses"),
     db: AsyncSession = Depends(get_db),
 ) -> StreamingResponse:
     """
@@ -76,7 +77,11 @@ async def stream_ioc(
         
         # Stream provider results as they arrive
         for provider_result in result["providers"]:
-            yield f"event: provider\ndata: {json.dumps({'provider': provider_result, 'now_ms': result['timing']['total_ms']})}\n\n"
+            # Include raw data if requested
+            if show_raw and 'raw' in provider_result:
+                yield f"event: provider\ndata: {json.dumps({'provider': provider_result, 'raw_data': provider_result.get('raw'), 'now_ms': result['timing']['total_ms']})}\n\n"
+            else:
+                yield f"event: provider\ndata: {json.dumps({'provider': provider_result, 'now_ms': result['timing']['total_ms']})}\n\n"
             # Small delay to simulate progressive loading
             await asyncio.sleep(0.1)
         
@@ -88,6 +93,56 @@ async def stream_ioc(
         media_type="text/event-stream",
         headers={"Cache-Control": "no-cache", "Connection": "keep-alive"},
     )
+
+
+@router.get("/debug_ioc", summary="Get detailed IOC analysis with raw API data")
+async def debug_ioc(
+    ioc: str = Query(..., description="IOC to check"),
+    force_refresh: bool = Query(False, description="Whether to force refresh the cache"),
+    db: AsyncSession = Depends(get_db),
+) -> Dict[str, Any]:
+    """
+    Get detailed IOC analysis including raw API responses from all providers.
+    
+    Args:
+        ioc: IOC to check
+        force_refresh: Whether to force refresh the cache
+        db: Database session
+        
+    Returns:
+        Detailed analysis with raw API data
+    """
+    # Initialize services
+    cache = RedisCache()
+    aggregator = FlashThreatAggregator(cache)
+    
+    # Check IOC type
+    ioc_type, error = detect_ioc_type(ioc)
+    if error:
+        return {"error": error}
+    
+    # Get detailed results with raw data
+    lookup_id, result = await aggregator.check_ioc(ioc, force_refresh=force_refresh)
+    
+    # Enhance result with raw data from each provider
+    enhanced_providers = []
+    for provider_result in result["providers"]:
+        enhanced_provider = provider_result.copy()
+        # Include raw data if available
+        if 'raw' in provider_result and provider_result['raw']:
+            enhanced_provider['raw_api_response'] = provider_result['raw']
+        enhanced_providers.append(enhanced_provider)
+    
+    result["providers"] = enhanced_providers
+    result["debug_info"] = {
+        "ioc": ioc,
+        "ioc_type": ioc_type,
+        "lookup_id": lookup_id,
+        "force_refresh": force_refresh,
+        "timestamp": result.get("timing", {}).get("start_time")
+    }
+    
+    return result
 
 
 @router.get("/lookup/{lookup_id}", summary="Get lookup by ID")
