@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import IOCForm from '../components/IOC/IOCForm';
 import SummaryCard from '../components/IOC/SummaryCard';
 import ProviderCard from '../components/IOC/ProviderCard';
 import { streamIOC } from '../lib/api';
@@ -77,10 +76,6 @@ const CheckResultPage = () => {
     setCloseStream(() => close);
   };
 
-  const handleNewSearch = (newIoc, forceRefresh) => {
-    // Navigate to new URL with the new IOC
-    navigate(`/check-id/${encodeURIComponent(newIoc)}`);
-  };
 
   const handleBackToHome = () => {
     navigate('/');
@@ -99,10 +94,6 @@ const CheckResultPage = () => {
         </div>
       </div>
 
-      <div className={styles.searchSection}>
-        <h2 className={styles.sectionTitle}>Search Another IOC</h2>
-        <IOCForm onSubmit={handleNewSearch} isLoading={isLoading} />
-      </div>
 
       {error && (
         <div className={styles.error}>
@@ -145,12 +136,6 @@ const CheckResultPage = () => {
             disabled={isLoading}
           >
             {isLoading ? 'Refreshing...' : 'Refresh Analysis'}
-          </button>
-          <button 
-            onClick={() => navigate(`/api-data/${encodeURIComponent(ioc)}`)} 
-            className={styles.debugButton}
-          >
-            View Raw API Data
           </button>
         </div>
       )}

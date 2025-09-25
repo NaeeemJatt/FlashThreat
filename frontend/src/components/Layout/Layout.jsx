@@ -20,9 +20,6 @@ const Layout = () => {
           <NavLink to="/history" className={({ isActive }) => isActive ? styles.activeLink : styles.link}>
             History
           </NavLink>
-          <NavLink to="/api-data" className={({ isActive }) => isActive ? styles.activeLink : styles.link}>
-            API Data
-          </NavLink>
         </nav>
         <div className={styles.user}>
           {user && (

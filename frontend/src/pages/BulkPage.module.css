@@ -43,16 +43,21 @@
 }
 
 .fileDrop {
-  border: 2px dashed var(--color-border-dark);
-  border-radius: 8px;
+  border: 2px dashed var(--accent-primary);
+  border-radius: 12px;
   padding: 3rem 2rem;
   text-align: center;
-  transition: all 0.2s;
+  transition: all 0.3s ease;
+  background: rgba(0, 212, 255, 0.05);
+  position: relative;
+  box-shadow: 0 4px 12px rgba(0, 212, 255, 0.1);
 }
 
 .fileDrop:hover {
-  border-color: var(--color-primary);
-  background-color: rgba(37, 99, 235, 0.05);
+  border-color: var(--accent-primary);
+  background: rgba(0, 212, 255, 0.1);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 212, 255, 0.2);
 }
 
 .fileIcon {
@@ -71,6 +76,26 @@
   border-radius: 4px;
   margin-bottom: 1.5rem;
   font-size: 0.875rem;
+}
+
+.options {
+  margin-bottom: 1.5rem;
+}
+
+.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.checkbox input {
+  cursor: pointer;
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent-primary);
 }
 
 .formActions {

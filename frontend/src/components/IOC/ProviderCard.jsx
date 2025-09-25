@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
 import styles from './ProviderCard.module.css';
-import DebugViewer from '../Debug/DebugViewer';
 
 const ProviderCard = ({ provider, data }) => {
   const [showEvidence, setShowEvidence] = useState(false);
-  const [showDebug, setShowDebug] = useState(false);
 
   // Handle different provider statuses
   const getStatusClass = () => {
@@ -290,20 +288,7 @@ const ProviderCard = ({ provider, data }) => {
                   >
                     View on {getProviderName()}
                   </a>
-                  <button 
-                    className={styles.debugButton}
-                    onClick={() => setShowDebug(!showDebug)}
-                  >
-                    {showDebug ? 'Hide Debug' : 'Show Debug'}
-                  </button>
                 </div>
-              )}
-              
-              {showDebug && (
-                <DebugViewer 
-                  data={data} 
-                  title={`${getProviderName()} - Complete API Response`}
-                />
               )}
             </>
           ) : (

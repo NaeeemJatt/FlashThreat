@@ -104,23 +104,22 @@
 
 .activeLink {
   color: var(--accent-primary);
-  background: rgba(0, 212, 255, 0.1);
+  background: linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(124, 58, 237, 0.2));
+  border: 1px solid rgba(0, 212, 255, 0.3);
   text-decoration: none;
   font-weight: 600;
   position: relative;
+  border-radius: 12px;
+  padding: 0.75rem 1.5rem;
+  box-shadow: 0 4px 12px rgba(0, 212, 255, 0.2);
+  transition: all 0.3s ease;
 }
 
-.activeLink::after {
-  content: '';
-  position: absolute;
-  bottom: -8px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 4px;
-  height: 4px;
-  background: var(--accent-primary);
-  border-radius: 50%;
-  box-shadow: 0 0 8px var(--accent-primary);
+.activeLink:hover {
+  background: linear-gradient(135deg, rgba(0, 212, 255, 0.3), rgba(124, 58, 237, 0.3));
+  border-color: var(--accent-primary);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0, 212, 255, 0.3);
 }
 
 .user {

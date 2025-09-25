@@ -1,10 +1,13 @@
 import asyncio
 import json
+import logging
 from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, Request
 from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
+
+logger = logging.getLogger(__name__)
 
 from app.core.ioc_utils import detect_ioc_type
 from app.db.base import get_db
@@ -181,8 +184,53 @@ async def submit_bulk_job(
     Returns:
         Job ID and status
     """
-    # TODO: Implement bulk job submission
-    raise HTTPException(status_code=501, detail="Not implemented yet")
+    try:
+        # Parse multipart form data
+        form = await request.form()
+        file = form.get("file")
+        force_refresh = form.get("force_refresh", "false").lower() == "true"
+        
+        if not file:
+            raise HTTPException(status_code=400, detail="No file provided")
+        
+        if not file.filename.endswith('.csv'):
+            raise HTTPException(status_code=400, detail="File must be a CSV")
+        
+        # Read file content
+        file_content = await file.read()
+        
+        if len(file_content) == 0:
+            raise HTTPException(status_code=400, detail="Empty file")
+        
+        if len(file_content) > 10 * 1024 * 1024:  # 10MB limit
+            raise HTTPException(status_code=400, detail="File too large (max 10MB)")
+        
+        # Create bulk processor
+        from app.services.bulk_processor import BulkProcessor
+        processor = BulkProcessor(db)
+        
+        # Create bulk job
+        bulk_job = await processor.create_bulk_job(
+            file_content=file_content,
+            filename=file.filename,
+            force_refresh=force_refresh
+        )
+        
+        # Start background processing
+        background_tasks.add_task(processor.process_bulk_job, str(bulk_job.id))
+        
+        return {
+            "job_id": str(bulk_job.id),
+            "status": bulk_job.status,
+            "total_iocs": bulk_job.total_iocs,
+            "message": "Bulk job submitted successfully"
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error submitting bulk job: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
 
 @router.get("/bulk/{job_id}", summary="Get bulk job progress")
@@ -200,8 +248,22 @@ async def get_bulk_job_progress(
     Returns:
         Job progress
     """
-    # TODO: Implement bulk job progress
-    raise HTTPException(status_code=501, detail="Not implemented yet")
+    try:
+        from app.services.bulk_processor import BulkProcessor
+        processor = BulkProcessor(db)
+        
+        progress = await processor.get_job_progress(job_id)
+        
+        if not progress:
+            raise HTTPException(status_code=404, detail="Job not found")
+        
+        return progress
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error getting job progress: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
 
 @router.get("/bulk/{job_id}/download", summary="Download bulk job results")
@@ -219,6 +281,28 @@ async def download_bulk_job_results(
     Returns:
         CSV file with results
     """
-    # TODO: Implement bulk job results download
-    raise HTTPException(status_code=501, detail="Not implemented yet")
+    try:
+        from app.services.bulk_processor import BulkProcessor
+        processor = BulkProcessor(db)
+        
+        # Generate CSV content
+        csv_content = await processor.generate_results_csv(job_id)
+        
+        # Create streaming response
+        def generate():
+            yield csv_content
+        
+        return StreamingResponse(
+            generate(),
+            media_type="text/csv",
+            headers={
+                "Content-Disposition": f"attachment; filename=bulk_results_{job_id}.csv"
+            }
+        )
+        
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        logger.error(f"Error downloading job results: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 

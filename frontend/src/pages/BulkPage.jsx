@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { submitBulkJob, getBulkJobProgress } from '../lib/api';
 import styles from './BulkPage.module.css';
 
 const BulkPage = () => {
@@ -7,6 +8,7 @@ const BulkPage = () => {
   const [jobId, setJobId] = useState(null);
   const [progress, setProgress] = useState(null);
   const [error, setError] = useState('');
+  const [forceRefresh, setForceRefresh] = useState(false);
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
@@ -27,41 +29,52 @@ const BulkPage = () => {
       return;
     }
 
-    // TODO: Implement bulk upload functionality
     setIsLoading(true);
-    setTimeout(() => {
-      setJobId('demo-job-id');
+    setError('');
+    
+    try {
+      // Create FormData for file upload
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('force_refresh', forceRefresh.toString());
+      
+      // Submit bulk job
+      const response = await submitBulkJob(formData);
+      setJobId(response.job_id);
       setProgress({
-        total: 100,
+        total: response.total_iocs,
         processed: 0,
         completed: 0,
         failed: 0,
-        status: 'processing',
+        status: response.status,
       });
+    } catch (err) {
+      console.error('Error submitting bulk job:', err);
+      setError(err.response?.data?.detail || 'Failed to submit bulk job');
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
-  // Simulate progress updates for demo
-  React.useEffect(() => {
-    if (jobId && progress && progress.status === 'processing') {
-      const interval = setInterval(() => {
-        setProgress((prev) => {
-          const processed = Math.min(prev.processed + 10, prev.total);
-          const completed = Math.min(prev.completed + 8, prev.total);
-          const failed = Math.min(prev.failed + 2, prev.total - completed);
-          
-          const status = processed === prev.total ? 'completed' : 'processing';
-          
-          return {
-            ...prev,
-            processed,
-            completed,
-            failed,
-            status,
-          };
-        });
-      }, 1000);
+  // Poll for job progress updates
+  useEffect(() => {
+    if (jobId && progress && !progress.is_finished) {
+      const interval = setInterval(async () => {
+        try {
+          const jobProgress = await getBulkJobProgress(jobId);
+          setProgress({
+            total: jobProgress.total_iocs,
+            processed: jobProgress.processed_iocs,
+            completed: jobProgress.completed_iocs,
+            failed: jobProgress.failed_iocs,
+            status: jobProgress.status,
+            progress_percentage: jobProgress.progress_percentage,
+            download_url: jobProgress.download_url,
+          });
+        } catch (err) {
+          console.error('Error fetching job progress:', err);
+        }
+      }, 2000); // Poll every 2 seconds
       
       return () => clearInterval(interval);
     }
@@ -96,6 +109,18 @@ const BulkPage = () => {
 
           {error && <div className={styles.error}>{error}</div>}
 
+          <div className={styles.options}>
+            <label className={styles.checkbox}>
+              <input
+                type="checkbox"
+                checked={forceRefresh}
+                onChange={(e) => setForceRefresh(e.target.checked)}
+                disabled={isLoading}
+              />
+              Force refresh (bypass cache)
+            </label>
+          </div>
+
           <div className={styles.formActions}>
             <button
               type="submit"
@@ -118,11 +143,14 @@ const BulkPage = () => {
           <div className={styles.progressContainer}>
             <div className={styles.progressLabel}>
               {progress?.processed} / {progress?.total} processed
+              {progress?.progress_percentage && (
+                <span> ({progress.progress_percentage}%)</span>
+              )}
             </div>
             <div className={styles.progressBar}>
               <div
                 className={styles.progressFill}
-                style={{ width: `${(progress?.processed / progress?.total) * 100}%` }}
+                style={{ width: `${progress?.progress_percentage || 0}%` }}
               ></div>
             </div>
           </div>
@@ -141,7 +169,14 @@ const BulkPage = () => {
           {progress?.status === 'completed' && (
             <div className={styles.downloadSection}>
               <p>Your results are ready!</p>
-              <button className={styles.downloadButton}>
+              <button 
+                className={styles.downloadButton}
+                onClick={() => {
+                  if (progress.download_url) {
+                    window.open(`/api${progress.download_url}`, '_blank');
+                  }
+                }}
+              >
                 Download Results
               </button>
             </div>
