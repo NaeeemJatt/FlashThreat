@@ -90,6 +90,10 @@ class AbuseIPDBAdapter(ProviderAdapter):
             normalized.confidence = confidence_score
             normalized.reputation = confidence_score  # Use confidence as reputation
         
+        # For AbuseIPDB, we don't have multiple scan engines, so set defaults
+        normalized.total_scans = 1  # AbuseIPDB is a single source
+        normalized.detection_ratio = confidence_score if confidence_score is not None else 0
+        
         # Extract flags
         normalized.flags = {
             "is_public": data.get("isPublic", True),

@@ -58,6 +58,133 @@ const SummaryCard = ({ summary, ioc, timing }) => {
           {summary.explanation}
         </div>
 
+        {/* Enhanced Analysis Details */}
+        <div className={styles.analysisDetails}>
+          <h4 className={styles.analysisTitle}>Analysis Breakdown</h4>
+          
+          <div className={styles.analysisGrid}>
+            {/* Risk Assessment */}
+            <div className={styles.analysisSection}>
+              <div className={styles.sectionHeader}>
+                <span className={styles.sectionIcon}>⚠️</span>
+                <span className={styles.sectionLabel}>Risk Assessment</span>
+              </div>
+              <div className={styles.sectionContent}>
+                <div className={styles.riskItem}>
+                  <span className={styles.riskLabel}>Threat Level:</span>
+                  <span className={`${styles.riskValue} ${styles[summary.verdict]}`}>
+                    {summary.verdict.toUpperCase()}
+                  </span>
+                </div>
+                <div className={styles.riskItem}>
+                  <span className={styles.riskLabel}>Confidence:</span>
+                  <span className={styles.riskValue}>
+                    {summary.confidence || 'N/A'}%
+                  </span>
+                </div>
+                <div className={styles.riskItem}>
+                  <span className={styles.riskLabel}>Reliability:</span>
+                  <span className={styles.riskValue}>
+                    {summary.reliability || 'N/A'}%
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Detection Sources */}
+            <div className={styles.analysisSection}>
+              <div className={styles.sectionHeader}>
+                <span className={styles.sectionIcon}>🔍</span>
+                <span className={styles.sectionLabel}>Detection Sources</span>
+              </div>
+              <div className={styles.sectionContent}>
+                <div className={styles.sourceItem}>
+                  <span className={styles.sourceLabel}>Total Scans:</span>
+                  <span className={styles.sourceValue}>
+                    {summary.total_scans || 'N/A'}
+                  </span>
+                </div>
+                <div className={styles.sourceItem}>
+                  <span className={styles.sourceLabel}>Malicious Detections:</span>
+                  <span className={styles.sourceValue}>
+                    {summary.malicious_detections || 'N/A'}
+                  </span>
+                </div>
+                <div className={styles.sourceItem}>
+                  <span className={styles.sourceLabel}>Clean Detections:</span>
+                  <span className={styles.sourceValue}>
+                    {summary.clean_detections || 'N/A'}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Geographic Information */}
+            {summary.geolocation && (
+              <div className={styles.analysisSection}>
+                <div className={styles.sectionHeader}>
+                  <span className={styles.sectionIcon}>🌍</span>
+                  <span className={styles.sectionLabel}>Geographic Info</span>
+                </div>
+                <div className={styles.sectionContent}>
+                  {summary.geolocation.country && (
+                    <div className={styles.geoItem}>
+                      <span className={styles.geoLabel}>Country:</span>
+                      <span className={styles.geoValue}>
+                        {summary.geolocation.country}
+                      </span>
+                    </div>
+                  )}
+                  {summary.geolocation.region && (
+                    <div className={styles.geoItem}>
+                      <span className={styles.geoLabel}>Region:</span>
+                      <span className={styles.geoValue}>
+                        {summary.geolocation.region}
+                      </span>
+                    </div>
+                  )}
+                  {summary.geolocation.isp && (
+                    <div className={styles.geoItem}>
+                      <span className={styles.geoLabel}>ISP:</span>
+                      <span className={styles.geoValue}>
+                        {summary.geolocation.isp}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Network Information */}
+            {summary.network && (
+              <div className={styles.analysisSection}>
+                <div className={styles.sectionHeader}>
+                  <span className={styles.sectionIcon}>🌐</span>
+                  <span className={styles.sectionLabel}>Network Info</span>
+                </div>
+                <div className={styles.sectionContent}>
+                  {summary.network.organization && (
+                    <div className={styles.networkItem}>
+                      <span className={styles.networkLabel}>Organization:</span>
+                      <span className={styles.networkValue}>
+                        {summary.network.organization}
+                      </span>
+                    </div>
+                  )}
+                  {summary.network.asn && (
+                    <div className={styles.networkItem}>
+                      <span className={styles.networkLabel}>ASN:</span>
+                      <span className={styles.networkValue}>
+                        {summary.network.asn}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
         {(summary.first_seen || summary.last_seen) && (
           <div className={styles.timestamps}>
             {summary.first_seen && (

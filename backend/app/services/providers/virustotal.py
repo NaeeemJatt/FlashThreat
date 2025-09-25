@@ -92,8 +92,19 @@ class VirusTotalAdapter(ProviderAdapter):
         normalized.suspicious_count = stats.get("suspicious", 0)
         normalized.harmless_count = stats.get("harmless", 0)
         
+        # Calculate total scans
+        total_scans = sum(stats.values()) or 0
+        normalized.total_scans = total_scans
+        
+        # Calculate detection ratio
+        if total_scans > 0:
+            detection_ratio = int((normalized.malicious_count / total_scans) * 100)
+            normalized.detection_ratio = detection_ratio
+        else:
+            normalized.detection_ratio = 0
+        
         # Calculate reputation score (0-100 where higher is more malicious)
-        total_votes = sum(stats.values()) or 1  # Avoid division by zero
+        total_votes = total_scans or 1  # Avoid division by zero
         normalized.reputation = int(
             ((normalized.malicious_count * 100) + (normalized.suspicious_count * 50)) / total_votes
         )

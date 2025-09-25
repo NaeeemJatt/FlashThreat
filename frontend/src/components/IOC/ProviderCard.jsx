@@ -98,6 +98,159 @@ const ProviderCard = ({ provider, data }) => {
                     <div className={styles.metricLabel}>Malicious</div>
                   </div>
                 )}
+                {data.total_scans !== null && (
+                  <div className={styles.metric}>
+                    <div className={styles.metricValue}>{data.total_scans}</div>
+                    <div className={styles.metricLabel}>Total Scans</div>
+                  </div>
+                )}
+                {data.detection_ratio !== null && (
+                  <div className={styles.metric}>
+                    <div className={styles.metricValue}>{data.detection_ratio}%</div>
+                    <div className={styles.metricLabel}>Detection Ratio</div>
+                  </div>
+                )}
+              </div>
+
+              {/* Enhanced IP Details Section */}
+              <div className={styles.ipDetails}>
+                <h4 className={styles.detailsTitle}>IP Analysis Details</h4>
+                
+                {/* Geolocation Information */}
+                {data.geolocation && (
+                  <div className={styles.detailSection}>
+                    <div className={styles.detailHeader}>
+                      <span className={styles.detailIcon}>🌍</span>
+                      <span className={styles.detailLabel}>Geolocation</span>
+                    </div>
+                    <div className={styles.detailContent}>
+                      {data.geolocation.country && (
+                        <div className={styles.detailItem}>
+                          <span className={styles.detailKey}>Country:</span>
+                          <span className={styles.detailValue}>{data.geolocation.country}</span>
+                        </div>
+                      )}
+                      {data.geolocation.region && (
+                        <div className={styles.detailItem}>
+                          <span className={styles.detailKey}>Region:</span>
+                          <span className={styles.detailValue}>{data.geolocation.region}</span>
+                        </div>
+                      )}
+                      {data.geolocation.city && (
+                        <div className={styles.detailItem}>
+                          <span className={styles.detailKey}>City:</span>
+                          <span className={styles.detailValue}>{data.geolocation.city}</span>
+                        </div>
+                      )}
+                      {data.geolocation.isp && (
+                        <div className={styles.detailItem}>
+                          <span className={styles.detailKey}>ISP:</span>
+                          <span className={styles.detailValue}>{data.geolocation.isp}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Network Information */}
+                {data.network && (
+                  <div className={styles.detailSection}>
+                    <div className={styles.detailHeader}>
+                      <span className={styles.detailIcon}>🌐</span>
+                      <span className={styles.detailLabel}>Network Information</span>
+                    </div>
+                    <div className={styles.detailContent}>
+                      {data.network.organization && (
+                        <div className={styles.detailItem}>
+                          <span className={styles.detailKey}>Organization:</span>
+                          <span className={styles.detailValue}>{data.network.organization}</span>
+                        </div>
+                      )}
+                      {data.network.asn && (
+                        <div className={styles.detailItem}>
+                          <span className={styles.detailKey}>ASN:</span>
+                          <span className={styles.detailValue}>{data.network.asn}</span>
+                        </div>
+                      )}
+                      {data.network.owner && (
+                        <div className={styles.detailItem}>
+                          <span className={styles.detailKey}>Owner:</span>
+                          <span className={styles.detailValue}>{data.network.owner}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Security Information */}
+                {data.security && (
+                  <div className={styles.detailSection}>
+                    <div className={styles.detailHeader}>
+                      <span className={styles.detailIcon}>🔒</span>
+                      <span className={styles.detailLabel}>Security Analysis</span>
+                    </div>
+                    <div className={styles.detailContent}>
+                      {data.security.ports && data.security.ports.length > 0 && (
+                        <div className={styles.detailItem}>
+                          <span className={styles.detailKey}>Open Ports:</span>
+                          <span className={styles.detailValue}>
+                            {data.security.ports.map(port => `${port.port} (${port.service})`).join(', ')}
+                          </span>
+                        </div>
+                      )}
+                      {data.security.vulnerabilities && data.security.vulnerabilities.length > 0 && (
+                        <div className={styles.detailItem}>
+                          <span className={styles.detailKey}>Vulnerabilities:</span>
+                          <span className={styles.detailValue}>
+                            {data.security.vulnerabilities.length} found
+                          </span>
+                        </div>
+                      )}
+                      {data.security.ssl_info && (
+                        <div className={styles.detailItem}>
+                          <span className={styles.detailKey}>SSL Certificate:</span>
+                          <span className={styles.detailValue}>
+                            {data.security.ssl_info.valid ? 'Valid' : 'Invalid'}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Threat Intelligence */}
+                {data.threat_intel && (
+                  <div className={styles.detailSection}>
+                    <div className={styles.detailHeader}>
+                      <span className={styles.detailIcon}>⚠️</span>
+                      <span className={styles.detailLabel}>Threat Intelligence</span>
+                    </div>
+                    <div className={styles.detailContent}>
+                      {data.threat_intel.categories && data.threat_intel.categories.length > 0 && (
+                        <div className={styles.detailItem}>
+                          <span className={styles.detailKey}>Categories:</span>
+                          <span className={styles.detailValue}>
+                            {data.threat_intel.categories.join(', ')}
+                          </span>
+                        </div>
+                      )}
+                      {data.threat_intel.last_seen && (
+                        <div className={styles.detailItem}>
+                          <span className={styles.detailKey}>Last Seen:</span>
+                          <span className={styles.detailValue}>{data.threat_intel.last_seen}</span>
+                        </div>
+                      )}
+                      {data.threat_intel.attack_types && data.threat_intel.attack_types.length > 0 && (
+                        <div className={styles.detailItem}>
+                          <span className={styles.detailKey}>Attack Types:</span>
+                          <span className={styles.detailValue}>
+                            {data.threat_intel.attack_types.join(', ')}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
 
               {data.evidence && data.evidence.length > 0 && (

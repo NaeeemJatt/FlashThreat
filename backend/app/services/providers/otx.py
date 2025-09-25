@@ -314,6 +314,14 @@ class OTXAdapter(ProviderAdapter):
         
         normalized.reputation = min(reputation_score, 100)  # Cap at 100
         
+        # For OTX, we use pulse count as total scans and calculate detection ratio
+        normalized.total_scans = pulse_count
+        if pulse_count > 0:
+            # Calculate detection ratio based on reputation score
+            normalized.detection_ratio = min(int((reputation_score / 100) * 100), 100)
+        else:
+            normalized.detection_ratio = 0
+        
         return normalized
 
     def link_out(self, ioc: str, ioc_type: IOCType) -> str:

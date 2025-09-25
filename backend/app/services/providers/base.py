@@ -27,6 +27,8 @@ class ProviderNormalized:
         suspicious_count: Optional[int] = None,
         harmless_count: Optional[int] = None,
         confidence: Optional[int] = None,
+        total_scans: Optional[int] = None,
+        detection_ratio: Optional[int] = None,
         evidence: List[Dict[str, Any]] = None,
         raw: Optional[Dict[str, Any]] = None,
         error: Optional[Dict[str, Any]] = None,
@@ -41,6 +43,8 @@ class ProviderNormalized:
         self.suspicious_count = suspicious_count
         self.harmless_count = harmless_count
         self.confidence = confidence
+        self.total_scans = total_scans
+        self.detection_ratio = detection_ratio
         self.evidence = evidence or []
         self.raw = raw
         self.error = error
@@ -58,6 +62,8 @@ class ProviderNormalized:
             "suspicious_count": self.suspicious_count,
             "harmless_count": self.harmless_count,
             "confidence": self.confidence,
+            "total_scans": self.total_scans,
+            "detection_ratio": self.detection_ratio,
             "evidence": self.evidence,
         }
         
