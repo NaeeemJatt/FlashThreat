@@ -1,16 +1,22 @@
 # FlashThreat
 
-A powerful web application for analyzing Indicators of Compromise (IOCs) using multiple threat intelligence sources.
+A production-ready, enterprise-grade threat intelligence analysis platform that aggregates data from multiple security providers to analyze Indicators of Compromise (IOCs).
 
-## Features
+## 🚀 Features
 
+### Core Functionality
 - **Single IOC Lookup**: Analyze IPs, domains, URLs, and file hashes against multiple threat intelligence sources
 - **Real-time Streaming**: Results stream to the browser as they arrive from each provider
 - **Unified Scoring**: Clear verdict and score based on weighted analysis of all sources
-- **Caching**: Redis-based caching with configurable TTLs by IOC type
-- **Permanent Storage**: PostgreSQL database for storing lookup history and results
 - **Bulk Processing**: Upload CSV files for batch processing of multiple IOCs
-- **User Management**: Basic authentication with admin and analyst roles
+- **History Tracking**: Complete audit trail of analyses with detailed results
+
+### Enterprise Features
+- **Advanced Security**: Rate limiting, input sanitization, XSS protection, and security headers
+- **Comprehensive Monitoring**: System health checks, performance metrics, and error tracking
+- **Mobile Optimized**: Responsive design with touch-friendly interface
+- **Production Ready**: Connection pooling, memory optimization, and error handling
+- **Comprehensive Testing**: Integration tests, security tests, and performance validation
 
 ## Supported Providers
 
@@ -19,107 +25,153 @@ A powerful web application for analyzing Indicators of Compromise (IOCs) using m
 - **Shodan**: Network exposure and vulnerability information
 - **AlienVault OTX**: Open Threat Exchange for all IOC types
 
-## Tech Stack
+## 🛠️ Tech Stack
 
 ### Backend
-- FastAPI (Python)
-- SQLAlchemy with PostgreSQL
-- Redis for caching
-- Alembic for database migrations
-- Async architecture with httpx
+- **FastAPI** (Python) with async/await support
+- **PostgreSQL** with SQLAlchemy ORM and connection pooling
+- **Redis** for caching and distributed rate limiting
+- **Alembic** for database migrations with rollback support
+- **Comprehensive Middleware**: Rate limiting, security, error handling, metrics
 
 ### Frontend
-- React with Vite
-- React Query for data fetching
-- Server-Sent Events (SSE) for streaming
-- CSS Modules for styling
+- **React 18** with modern hooks and context
+- **Vite** for fast development and building
+- **CSS Modules** with responsive design and mobile optimization
+- **Server-Sent Events (SSE)** for real-time streaming
+- **Vitest** with React Testing Library for testing
 
-## Getting Started
+### Infrastructure
+- **Docker Compose** for multi-service deployment
+- **Comprehensive Monitoring** with health checks and metrics
+- **Security Headers** and input sanitization
+- **Production-Ready** error handling and logging
+
+## 🚀 Getting Started
 
 ### Prerequisites
 
-- Docker and Docker Compose
-- API keys for the following services:
-  - VirusTotal
-  - AbuseIPDB
-  - Shodan
-  - AlienVault OTX
+- **Docker and Docker Compose**
+- **API Keys** for the following services:
+  - [VirusTotal](https://www.virustotal.com/gui/join-us) - Free tier available
+  - [AbuseIPDB](https://www.abuseipdb.com/pricing) - Free tier available
+  - [Shodan](https://account.shodan.io/register) - Free tier available
+  - [AlienVault OTX](https://otx.alienvault.com/api) - Free tier available
 
-### Setup
+### Quick Start
 
-1. Clone the repository:
-   ```
+1. **Clone the repository:**
+   ```bash
    git clone https://github.com/yourusername/flashthreat.git
    cd flashthreat
    ```
 
-2. Create a `.env` file from the example:
-   ```
+2. **Create environment file:**
+   ```bash
    cp .env.example .env
    ```
 
-3. Add your API keys to the `.env` file:
-   ```
+3. **Configure API keys in `.env`:**
+   ```bash
    VT_API_KEY=your_virustotal_api_key
    ABUSEIPDB_API_KEY=your_abuseipdb_api_key
    SHODAN_API_KEY=your_shodan_api_key
    OTX_API_KEY=your_otx_api_key
    ```
 
-4. Start the services with Docker Compose:
-   ```
+4. **Start the application:**
+   ```bash
    docker-compose up -d
    ```
 
-5. Seed the database with initial data:
-   ```
-   docker-compose exec backend python seed_data.py
+5. **Initialize the database:**
+   ```bash
+   docker-compose exec backend python init_db.py
    ```
 
-6. Access the application at http://localhost
+6. **Access the application:**
+   - **Frontend**: http://localhost:3000
+   - **API Documentation**: http://localhost:8000/docs
+   - **Health Check**: http://localhost:8000/api/providers/health
 
 ### Default Users
 
-- Admin: admin@example.com / password123
-- Analyst: analyst@example.com / password123
+- **Admin**: `admin@flashthreat.local` / `admin123`
+- **Analyst**: `analyst@flashthreat.local` / `analyst123`
 
-## Development
+## 🔧 Development
 
-### Backend
+### Backend Development
 
-To run the backend in development mode:
-
-```
+```bash
 cd backend
-pip install -r requirements.txt
-uvicorn app.main:app --reload
+pip install poetry
+poetry install
+poetry run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-### Frontend
+### Frontend Development
 
-To run the frontend in development mode:
-
-```
+```bash
 cd frontend
 npm install
 npm run dev
 ```
 
-## Testing
+### Database Migrations
+
+```bash
+# Create new migration
+cd backend
+alembic revision --autogenerate -m "Description of changes"
+
+# Apply migrations
+alembic upgrade head
+
+# Rollback migration
+alembic downgrade -1
+```
+
+## 🧪 Testing
 
 ### Backend Tests
 
-```
+```bash
 cd backend
-pytest
+poetry run pytest
+poetry run pytest --cov=app tests/  # With coverage
 ```
 
 ### Frontend Tests
 
-```
+```bash
 cd frontend
 npm test
+npm run test:coverage  # With coverage
 ```
+
+### Integration Tests
+
+```bash
+cd backend
+poetry run pytest tests/test_integration.py
+poetry run pytest tests/test_security.py
+```
+
+## 📚 Documentation
+
+- **[API Documentation](docs/API_DOCUMENTATION.md)**: Complete REST API reference
+- **[User Guide](docs/USER_GUIDE.md)**: End-user documentation
+- **[Developer Guide](docs/DEVELOPER_GUIDE.md)**: Technical documentation for contributors
+- **[Project Analysis](PROJECT_ANALYSIS_REMAINING.md)**: Remaining areas for improvement
+
+## 🔒 Security Features
+
+- **Rate Limiting**: 60 requests/minute, 1000 requests/hour per IP
+- **Input Sanitization**: XSS and SQL injection protection
+- **Security Headers**: CSP, HSTS, X-Frame-Options, and more
+- **Authentication**: JWT-based with role-based access control
+- **Error Handling**: Secure error responses without information leakage
 
 ## License
 

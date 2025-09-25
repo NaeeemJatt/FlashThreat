@@ -3,38 +3,28 @@ import uuid
 from datetime import datetime
 
 from passlib.context import CryptContext
-from sqlalchemy.ext.asyncio import create_async_engine
-from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
 from app.models.user import User, UserRole
-from app.db.base import Base
+from app.db.base import engine
 
 # Password hashing
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-# Create async engine
-engine = create_async_engine(
-    str(settings.POSTGRES_DSN),
-    echo=True,
-)
-
-# Create async session
-async_session = sessionmaker(
-    engine, class_=AsyncSession, expire_on_commit=False
-)
-
 
 async def create_tables():
-    """Create all tables."""
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+    """Create all tables using Alembic migrations."""
+    from alembic.config import Config
+    from alembic import command
+    
+    alembic_cfg = Config("alembic.ini")
+    command.upgrade(alembic_cfg, "head")
 
 
 async def create_admin_user():
     """Create admin user."""
-    async with async_session() as session:
+    async with AsyncSession(engine) as session:
         # Check if admin user already exists
         from sqlalchemy import text
         result = await session.execute(text("SELECT * FROM users WHERE email = 'admin@example.com'"))

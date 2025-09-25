@@ -13,7 +13,7 @@ const HomePage = () => {
 
   return (
     <div className={styles.container}>
-      <h1 className={styles.title}>IOC Lookup</h1>
+      <h4 className={styles.title}>IOC Lookup</h4>
       <p className={styles.description}>
         Enter an IP address, domain, URL, or file hash to check against multiple threat intelligence sources.
       </p>

@@ -36,9 +36,6 @@ const Layout = () => {
       <main className={styles.main}>
         <Outlet />
       </main>
-      <footer className={styles.footer}>
-        <p>FlashThreat &copy; {new Date().getFullYear()}</p>
-      </footer>
     </div>
   );
 };

@@ -160,6 +160,7 @@
 @media (max-width: 768px) {
   .form {
     padding: 1.5rem;
+    margin-bottom: 1rem;
   }
   
   .inputGroup {
@@ -167,8 +168,71 @@
     gap: 1rem;
   }
   
+  .input {
+    padding: 0.875rem 1.25rem;
+    font-size: 0.95rem;
+  }
+  
   .submitButton {
     width: 100%;
     padding: 1rem;
+    font-size: 0.95rem;
+  }
+  
+  .checkboxContainer {
+    margin-top: 0.75rem;
+  }
+  
+  .checkboxLabel {
+    font-size: 0.8rem;
+  }
+}
+
+/* Mobile-specific optimizations */
+@media (max-width: 480px) {
+  .form {
+    padding: 1rem;
+    border-radius: 16px;
+  }
+  
+  .input {
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+  }
+  
+  .submitButton {
+    padding: 0.875rem;
+    font-size: 0.9rem;
+  }
+  
+  .checkboxContainer {
+    gap: 0.5rem;
+  }
+  
+  .checkbox {
+    width: 16px;
+    height: 16px;
+  }
+  
+  .checkboxLabel {
+    font-size: 0.75rem;
+  }
+}
+
+/* Touch-friendly improvements */
+@media (hover: none) and (pointer: coarse) {
+  .input {
+    min-height: 48px;
+    padding: 0.875rem 1.25rem;
+  }
+  
+  .submitButton {
+    min-height: 48px;
+    padding: 0.875rem 1.5rem;
+  }
+  
+  .checkbox {
+    width: 20px;
+    height: 20px;
   }
 }

@@ -163,8 +163,84 @@ async def get_lookup(
     Returns:
         Lookup response
     """
-    # TODO: Implement lookup retrieval from database
-    raise HTTPException(status_code=501, detail="Not implemented yet")
+    from sqlalchemy import select
+    from app.models.lookup import Lookup, ProviderResult, Note
+    from app.models.ioc import IOC
+    from app.models.user import User
+    import uuid
+    
+    try:
+        # Validate UUID format
+        lookup_uuid = uuid.UUID(lookup_id)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid lookup ID format")
+    
+    # Query the lookup with related data
+    stmt = select(Lookup).where(Lookup.id == lookup_uuid)
+    result = await db.execute(stmt)
+    lookup = result.scalar_one_or_none()
+    
+    if not lookup:
+        raise HTTPException(status_code=404, detail="Lookup not found")
+    
+    # Get provider results
+    provider_results_stmt = select(ProviderResult).where(ProviderResult.lookup_id == lookup_uuid)
+    provider_results = await db.execute(provider_results_stmt)
+    provider_results_list = provider_results.scalars().all()
+    
+    # Get notes
+    notes_stmt = select(Note).where(Note.lookup_id == lookup_uuid)
+    notes = await db.execute(notes_stmt)
+    notes_list = notes.scalars().all()
+    
+    # Get IOC details
+    ioc_stmt = select(IOC).where(IOC.id == lookup.ioc_id)
+    ioc_result = await db.execute(ioc_stmt)
+    ioc = ioc_result.scalar_one_or_none()
+    
+    # Get user details
+    user_stmt = select(User).where(User.id == lookup.user_id)
+    user_result = await db.execute(user_stmt)
+    user = user_result.scalar_one_or_none()
+    
+    return {
+        "id": str(lookup.id),
+        "ioc": {
+            "id": str(ioc.id) if ioc else None,
+            "value": ioc.value if ioc else None,
+            "type": ioc.type.value if ioc else None,
+        } if ioc else None,
+        "user": {
+            "id": str(user.id) if user else None,
+            "email": user.email if user else None,
+            "role": user.role.value if user else None,
+        } if user else None,
+        "started_at": lookup.started_at.isoformat() if lookup.started_at else None,
+        "finished_at": lookup.finished_at.isoformat() if lookup.finished_at else None,
+        "score": lookup.score,
+        "verdict": lookup.verdict.value if lookup.verdict else None,
+        "summary_json": lookup.summary_json,
+        "provider_results": [
+            {
+                "id": str(pr.id),
+                "provider": pr.provider,
+                "status": pr.status,
+                "latency_ms": pr.latency_ms,
+                "normalized_json": pr.normalized_json,
+                "created_at": pr.created_at.isoformat() if pr.created_at else None,
+            }
+            for pr in provider_results_list
+        ],
+        "notes": [
+            {
+                "id": str(note.id),
+                "text": note.text,
+                "created_at": note.created_at.isoformat() if note.created_at else None,
+            }
+            for note in notes_list
+        ],
+        "created_at": lookup.created_at.isoformat() if lookup.created_at else None,
+    }
 
 
 @router.post("/bulk", summary="Submit bulk IOC check job")
