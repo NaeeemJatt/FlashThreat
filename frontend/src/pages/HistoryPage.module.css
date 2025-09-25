@@ -1,0 +1,108 @@
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.description {
+  color: var(--color-text-light);
+  margin-bottom: 2rem;
+}
+
+.tableContainer {
+  background-color: var(--color-background);
+  border-radius: 8px;
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  padding: 1rem;
+  text-align: left;
+}
+
+.table th {
+  background-color: var(--color-background-dark);
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.table tr {
+  border-bottom: 1px solid var(--color-border);
+}
+
+.table tr:last-child {
+  border-bottom: none;
+}
+
+.iocValue {
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.verdict {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.malicious {
+  background-color: var(--color-verdict-malicious);
+  color: white;
+}
+
+.suspicious {
+  background-color: var(--color-verdict-suspicious);
+  color: white;
+}
+
+.unknown {
+  background-color: var(--color-verdict-unknown);
+  color: white;
+}
+
+.clean {
+  background-color: var(--color-verdict-clean);
+  color: white;
+}
+
+.viewButton {
+  padding: 0.25rem 0.75rem;
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.viewButton:hover {
+  background-color: var(--color-primary-dark);
+}
+
+.empty {
+  padding: 3rem;
+  text-align: center;
+  color: var(--color-text-light);
+  background-color: var(--color-background);
+  border-radius: 8px;
+  box-shadow: var(--shadow-md);
+}
+

@@ -1,0 +1,136 @@
+.card {
+  background-color: var(--color-background);
+  border-radius: 8px;
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+  margin-bottom: 2rem;
+}
+
+.placeholder {
+  padding: 2rem;
+  text-align: center;
+  color: var(--color-text-light);
+  font-style: italic;
+}
+
+.header {
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.timing {
+  font-size: 0.875rem;
+  color: var(--color-text-light);
+}
+
+.content {
+  padding: 1.5rem;
+}
+
+.iocInfo {
+  margin-bottom: 1.5rem;
+}
+
+.iocValue {
+  font-size: 1.5rem;
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+  word-break: break-all;
+}
+
+.iocType {
+  display: inline-block;
+  background-color: var(--color-background-dark);
+  color: var(--color-text);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+}
+
+.verdict {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.verdictBadge {
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 1rem;
+  margin-right: 1rem;
+}
+
+.malicious .verdictBadge {
+  background-color: var(--color-verdict-malicious);
+  color: white;
+}
+
+.suspicious .verdictBadge {
+  background-color: var(--color-verdict-suspicious);
+  color: white;
+}
+
+.unknown .verdictBadge {
+  background-color: var(--color-verdict-unknown);
+  color: white;
+}
+
+.clean .verdictBadge {
+  background-color: var(--color-verdict-clean);
+  color: white;
+}
+
+.score {
+  font-size: 1.125rem;
+  font-weight: 500;
+}
+
+.malicious .score {
+  color: var(--color-verdict-malicious);
+}
+
+.suspicious .score {
+  color: var(--color-verdict-suspicious);
+}
+
+.unknown .score {
+  color: var(--color-verdict-unknown);
+}
+
+.clean .score {
+  color: var(--color-verdict-clean);
+}
+
+.explanation {
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+}
+
+.timestamps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  font-size: 0.875rem;
+  color: var(--color-text-light);
+}
+
+.timestamp {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.timestampLabel {
+  font-weight: 500;
+}
+

@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  # Backend API service
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    environment:
+      - APP_ENV=dev
+      - POSTGRES_DSN=postgresql+asyncpg://iocuser:iocpass@postgres:5432/flashthreat
+      - REDIS_URL=redis://redis:6379/0
+      - JWT_SECRET=changeme_in_production_this_is_insecure
+      - VT_API_KEY=${VT_API_KEY}
+      - ABUSEIPDB_API_KEY=${ABUSEIPDB_API_KEY}
+      - SHODAN_API_KEY=${SHODAN_API_KEY}
+      - OTX_API_KEY=${OTX_API_KEY}
+      - BACKEND_CORS_ORIGINS=["http://localhost:3000", "http://localhost:80"]
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - ./backend:/app
+    restart: unless-stopped
+
+  # Frontend service
+  frontend:
+    build: ./frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    restart: unless-stopped
+
+  # PostgreSQL database
+  postgres:
+    image: postgres:15-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=iocuser
+      - POSTGRES_PASSWORD=iocpass
+      - POSTGRES_DB=flashthreat
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  # Redis cache
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:
+
