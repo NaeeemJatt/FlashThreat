@@ -243,6 +243,105 @@ async def get_lookup(
     }
 
 
+@router.get("/history", summary="Get lookup history")
+async def get_lookup_history(
+    limit: int = Query(50, description="Number of records to return"),
+    offset: int = Query(0, description="Number of records to skip"),
+    user_id: Optional[str] = Query(None, description="Filter by user ID (admin only)"),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> Dict[str, Any]:
+    """
+    Get lookup history with pagination.
+    
+    Args:
+        limit: Number of records to return
+        offset: Number of records to skip
+        user_id: Filter by user ID (admin only)
+        db: Database session
+        
+    Returns:
+        List of lookup history records
+    """
+    from sqlalchemy import select, desc
+    from app.models.lookup import Lookup
+    from app.models.ioc import IOC
+    from app.models.user import User
+    from app.api.routes.auth import get_current_user
+    
+    # Build query
+    query = select(Lookup).order_by(desc(Lookup.created_at))
+    
+    # Apply user filter based on role
+    if current_user.role.value == "admin":
+        # Admin can see all lookups or filter by specific user
+        if user_id:
+            query = query.where(Lookup.user_id == user_id)
+    else:
+        # Analyst can only see their own lookups
+        query = query.where(Lookup.user_id == current_user.id)
+    
+    # Apply pagination
+    query = query.offset(offset).limit(limit)
+    
+    # Execute query
+    result = await db.execute(query)
+    lookups = result.scalars().all()
+    
+    # Get related data for each lookup
+    history_records = []
+    for lookup in lookups:
+        # Get IOC details
+        ioc_stmt = select(IOC).where(IOC.id == lookup.ioc_id)
+        ioc_result = await db.execute(ioc_stmt)
+        ioc = ioc_result.scalar_one_or_none()
+        
+        # Get user details
+        user_stmt = select(User).where(User.id == lookup.user_id)
+        user_result = await db.execute(user_stmt)
+        user = user_result.scalar_one_or_none()
+        
+        history_records.append({
+            "id": str(lookup.id),
+            "ioc": {
+                "id": str(ioc.id) if ioc else None,
+                "value": ioc.value if ioc else None,
+                "type": ioc.type.value if ioc else None,
+            } if ioc else None,
+            "user": {
+                "id": str(user.id) if user else None,
+                "email": user.email if user else None,
+                "role": user.role.value if user else None,
+            } if user else None,
+            "started_at": lookup.started_at.isoformat() if lookup.started_at else None,
+            "finished_at": lookup.finished_at.isoformat() if lookup.finished_at else None,
+            "score": lookup.score,
+            "verdict": lookup.verdict.value if lookup.verdict else None,
+            "summary_json": lookup.summary_json,
+            "created_at": lookup.created_at.isoformat() if lookup.created_at else None,
+        })
+    
+    # Get total count for pagination
+    count_query = select(Lookup)
+    if current_user.role.value == "analyst":
+        count_query = count_query.where(Lookup.user_id == current_user.id)
+    elif user_id:
+        count_query = count_query.where(Lookup.user_id == user_id)
+    
+    count_result = await db.execute(count_query)
+    total_count = len(count_result.scalars().all())
+    
+    return {
+        "lookups": history_records,
+        "pagination": {
+            "total": total_count,
+            "limit": limit,
+            "offset": offset,
+            "has_more": offset + limit < total_count
+        }
+    }
+
+
 @router.post("/bulk", summary="Submit bulk IOC check job")
 async def submit_bulk_job(
     request: Request,

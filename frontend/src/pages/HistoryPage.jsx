@@ -1,78 +1,50 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '../lib/auth';
+import { getLookupHistory } from '../lib/api';
 import styles from './HistoryPage.module.css';
 
 const HistoryPage = () => {
-  // Mock data for demonstration
-  const [history] = useState([
-    {
-      id: '1',
-      ioc: {
-        value: '8.8.8.8',
-        type: 'ipv4',
-      },
-      summary: {
-        verdict: 'clean',
-        score: 10,
-      },
-      timing: {
-        started_at: '2023-09-22T10:15:30Z',
-      },
-      user: {
-        email: 'admin@example.com',
-      },
-    },
-    {
-      id: '2',
-      ioc: {
-        value: 'malicious-domain.com',
-        type: 'domain',
-      },
-      summary: {
-        verdict: 'malicious',
-        score: 85,
-      },
-      timing: {
-        started_at: '2023-09-22T09:45:12Z',
-      },
-      user: {
-        email: 'admin@example.com',
-      },
-    },
-    {
-      id: '3',
-      ioc: {
-        value: 'https://suspicious-url.com/path',
-        type: 'url',
-      },
-      summary: {
-        verdict: 'suspicious',
-        score: 65,
-      },
-      timing: {
-        started_at: '2023-09-21T16:30:45Z',
-      },
-      user: {
-        email: 'analyst@example.com',
-      },
-    },
-    {
-      id: '4',
-      ioc: {
-        value: '44d88612fea8a8f36de82e1278abb02f',
-        type: 'hash_md5',
-      },
-      summary: {
-        verdict: 'unknown',
-        score: 30,
-      },
-      timing: {
-        started_at: '2023-09-21T14:20:10Z',
-      },
-      user: {
-        email: 'admin@example.com',
-      },
-    },
-  ]);
+  const { user } = useAuth();
+  const [history, setHistory] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [pagination, setPagination] = useState({
+    total: 0,
+    limit: 50,
+    offset: 0,
+    has_more: false
+  });
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // Fetch history data
+  const fetchHistory = async (page = 1) => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const offset = (page - 1) * pagination.limit;
+      const response = await getLookupHistory(pagination.limit, offset);
+      
+      setHistory(response.lookups);
+      setPagination(response.pagination);
+      setCurrentPage(page);
+    } catch (err) {
+      console.error('Failed to fetch history:', err);
+      setError('Failed to load history. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Load history on component mount
+  useEffect(() => {
+    fetchHistory();
+  }, []);
+
+  // Handle page change
+  const handlePageChange = (newPage) => {
+    fetchHistory(newPage);
+  };
 
   const getVerdictClass = (verdict) => {
     switch (verdict) {
@@ -90,15 +62,49 @@ const HistoryPage = () => {
   };
 
   const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
     const date = new Date(dateString);
     return date.toLocaleString();
   };
+
+  const handleViewDetails = (lookupId) => {
+    // Navigate to lookup details page
+    window.location.href = `/check-id/${lookupId}`;
+  };
+
+  const totalPages = Math.ceil(pagination.total / pagination.limit);
+
+  if (loading) {
+    return (
+      <div className={styles.container}>
+        <h1 className={styles.title}>Lookup History</h1>
+        <div className={styles.loading}>
+          <p>Loading history...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className={styles.container}>
+        <h1 className={styles.title}>Lookup History</h1>
+        <div className={styles.error}>
+          <p>{error}</p>
+          <button onClick={() => fetchHistory(currentPage)} className={styles.retryButton}>
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.container}>
       <h1 className={styles.title}>Lookup History</h1>
       <p className={styles.description}>
         View your recent IOC lookups and their results.
+        {user?.role === 'admin' && ' (Admin view - all users)'}
       </p>
 
       <div className={styles.tableContainer}>
@@ -110,25 +116,32 @@ const HistoryPage = () => {
               <th>Type</th>
               <th>Verdict</th>
               <th>Score</th>
-              <th>User</th>
+              {user?.role === 'admin' && <th>User</th>}
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
             {history.map((item) => (
               <tr key={item.id}>
-                <td>{formatDate(item.timing.started_at)}</td>
-                <td className={styles.iocValue}>{item.ioc.value}</td>
-                <td>{item.ioc.type}</td>
+                <td>{formatDate(item.started_at || item.created_at)}</td>
+                <td className={styles.iocValue}>{item.ioc?.value || 'N/A'}</td>
+                <td>{item.ioc?.type || 'N/A'}</td>
                 <td>
-                  <span className={`${styles.verdict} ${getVerdictClass(item.summary.verdict)}`}>
-                    {item.summary.verdict}
+                  <span className={`${styles.verdict} ${getVerdictClass(item.verdict)}`}>
+                    {item.verdict || 'unknown'}
                   </span>
                 </td>
-                <td>{item.summary.score}</td>
-                <td>{item.user.email}</td>
+                <td>{item.score || 0}</td>
+                {user?.role === 'admin' && (
+                  <td>{item.user?.email || 'N/A'}</td>
+                )}
                 <td>
-                  <button className={styles.viewButton}>View</button>
+                  <button 
+                    className={styles.viewButton}
+                    onClick={() => handleViewDetails(item.id)}
+                  >
+                    View
+                  </button>
                 </td>
               </tr>
             ))}
@@ -136,9 +149,37 @@ const HistoryPage = () => {
         </table>
       </div>
 
-      {history.length === 0 && (
+      {history.length === 0 && !loading && (
         <div className={styles.empty}>
           <p>No lookup history found.</p>
+        </div>
+      )}
+
+      {/* Pagination */}
+      {pagination.total > 0 && (
+        <div className={styles.pagination}>
+          <div className={styles.paginationInfo}>
+            Showing {pagination.offset + 1} to {Math.min(pagination.offset + pagination.limit, pagination.total)} of {pagination.total} results
+          </div>
+          <div className={styles.paginationControls}>
+            <button 
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage <= 1}
+              className={styles.paginationButton}
+            >
+              Previous
+            </button>
+            <span className={styles.pageInfo}>
+              Page {currentPage} of {totalPages}
+            </span>
+            <button 
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage >= totalPages}
+              className={styles.paginationButton}
+            >
+              Next
+            </button>
+          </div>
         </div>
       )}
     </div>
