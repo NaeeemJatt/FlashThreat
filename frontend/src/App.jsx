@@ -27,7 +27,7 @@ function App() {
           <Route index element={<HomePage />} />
           <Route path="bulk" element={<BulkPage />} />
           <Route path="history" element={<HistoryPage />} />
-          <Route path="check-id/:ioc" element={<CheckResultPage />} />
+          <Route path="result/:ioc" element={<CheckResultPage />} />
           <Route path="api-data/:ioc?" element={<ApiDataPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>

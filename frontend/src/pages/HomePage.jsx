@@ -8,7 +8,7 @@ const HomePage = () => {
 
   const handleSubmit = (ioc, forceRefresh) => {
     // Navigate to the check results page with the IOC
-    navigate(`/check-id/${encodeURIComponent(ioc)}`);
+    navigate(`/result/${encodeURIComponent(ioc)}`);
   };
 
   return (

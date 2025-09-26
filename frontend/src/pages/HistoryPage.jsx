@@ -69,7 +69,7 @@ const HistoryPage = () => {
 
   const handleViewDetails = (lookupId) => {
     // Navigate to lookup details page
-    window.location.href = `/check-id/${lookupId}`;
+    window.location.href = `/result/${lookupId}`;
   };
 
   const totalPages = Math.ceil(pagination.total / pagination.limit);
