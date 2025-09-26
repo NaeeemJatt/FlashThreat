@@ -14,6 +14,8 @@ from app.db.base import get_db
 from app.schemas.ioc import IOCCheck
 from app.services.aggregator import FlashThreatAggregator
 from app.services.cache import RedisCache
+from app.api.routes.auth import get_current_user
+from app.models.user import User
 
 router = APIRouter()
 
@@ -266,8 +268,6 @@ async def get_lookup_history(
     from sqlalchemy import select, desc
     from app.models.lookup import Lookup
     from app.models.ioc import IOC
-    from app.models.user import User
-    from app.api.routes.auth import get_current_user
     
     # Build query
     query = select(Lookup).order_by(desc(Lookup.created_at))
