@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import SummaryCard from '../components/IOC/SummaryCard';
 import ProviderCard from '../components/IOC/ProviderCard';
 import { streamIOC } from '../lib/api';
@@ -76,10 +76,16 @@ const CheckResultPage = () => {
     setCloseStream(() => close);
   };
 
+  const handleBackToHome = () => {
+    navigate('/');
+  };
 
   return (
     <div className={styles.container}>
       <div className={styles.header}>
+        <button onClick={handleBackToHome} className={styles.backButton}>
+          ← Back to Home
+        </button>
         <h1 className={styles.title}>IOC Analysis Results</h1>
         <div className={styles.iocDisplay}>
           <span className={styles.iocLabel}>Analyzing:</span>
