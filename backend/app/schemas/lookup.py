@@ -51,5 +51,5 @@ class NoteResponse(BaseModel):
     created_at: datetime = Field(..., description="Creation timestamp")
     
     class Config:
-        orm_mode = True
+        from_attributes = True
 

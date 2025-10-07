@@ -161,4 +161,45 @@ class RedisCache:
         raw_key = f"{key}:raw"
         
         await self.redis.delete(key, raw_key)
+    
+    async def get_cache_stats(self) -> Dict[str, Any]:
+        """
+        Get cache statistics.
+        
+        Returns:
+            Dictionary with cache statistics
+        """
+        try:
+            info = await self.redis.info()
+            return {
+                "connected_clients": info.get("connected_clients", 0),
+                "used_memory": info.get("used_memory", 0),
+                "used_memory_human": info.get("used_memory_human", "0B"),
+                "keyspace_hits": info.get("keyspace_hits", 0),
+                "keyspace_misses": info.get("keyspace_misses", 0),
+                "hit_rate": (
+                    info.get("keyspace_hits", 0) / 
+                    max(info.get("keyspace_hits", 0) + info.get("keyspace_misses", 0), 1)
+                ) * 100
+            }
+        except Exception:
+            return {"error": "Unable to get cache statistics"}
+    
+    async def clear_cache(self, pattern: str = "ioc:*") -> int:
+        """
+        Clear cache entries matching pattern.
+        
+        Args:
+            pattern: Redis key pattern to match
+            
+        Returns:
+            Number of keys deleted
+        """
+        try:
+            keys = await self.redis.keys(pattern)
+            if keys:
+                return await self.redis.delete(*keys)
+            return 0
+        except Exception:
+            return 0
 

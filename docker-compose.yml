@@ -7,15 +7,15 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - APP_ENV=dev
-      - POSTGRES_DSN=postgresql+asyncpg://iocuser:iocpass@postgres:5432/flashthreat
+      - APP_ENV=${APP_ENV:-dev}
+      - POSTGRES_DSN=postgresql+asyncpg://${POSTGRES_USER:-iocuser}:${POSTGRES_PASSWORD:-iocpass}@postgres:5432/${POSTGRES_DB:-flashthreat}
       - REDIS_URL=redis://redis:6379/0
-      - JWT_SECRET=changeme_in_production_this_is_insecure
+      - JWT_SECRET=${JWT_SECRET}
       - VT_API_KEY=${VT_API_KEY}
       - ABUSEIPDB_API_KEY=${ABUSEIPDB_API_KEY}
       - SHODAN_API_KEY=${SHODAN_API_KEY}
       - OTX_API_KEY=${OTX_API_KEY}
-      - BACKEND_CORS_ORIGINS=["http://localhost:3000", "http://localhost:80"]
+      - BACKEND_CORS_ORIGINS=${BACKEND_CORS_ORIGINS:-["http://localhost:3000", "http://localhost:80"]}
     depends_on:
       - postgres
       - redis
@@ -41,9 +41,9 @@ services:
     ports:
       - "5432:5432"
     environment:
-      - POSTGRES_USER=iocuser
-      - POSTGRES_PASSWORD=iocpass
-      - POSTGRES_DB=flashthreat
+      - POSTGRES_USER=${POSTGRES_USER:-iocuser}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-iocpass}
+      - POSTGRES_DB=${POSTGRES_DB:-flashthreat}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped

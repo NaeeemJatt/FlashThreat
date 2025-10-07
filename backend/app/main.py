@@ -7,6 +7,7 @@ from app.middleware.rate_limit import rate_limit_middleware
 from app.middleware.error_handler import error_handler_middleware
 from app.middleware.security import security_headers
 from app.middleware.metrics import metrics_middleware
+from app.middleware.csrf import csrf_middleware
 
 # Create FastAPI app
 app = FastAPI(
@@ -18,6 +19,7 @@ app = FastAPI(
 # Add middleware (order matters - error handler should be first)
 app.middleware("http")(error_handler_middleware)
 app.middleware("http")(metrics_middleware)
+app.middleware("http")(csrf_middleware)
 app.middleware("http")(rate_limit_middleware)
 
 # Set up CORS
@@ -51,6 +53,14 @@ async def root():
         response.headers[header] = value
     
     return response
+
+
+@app.get("/api/csrf-token")
+async def get_csrf_token():
+    """Get CSRF token for client."""
+    import secrets
+    token = secrets.token_urlsafe(32)
+    return {"csrf_token": token}
 
 
 if __name__ == "__main__":

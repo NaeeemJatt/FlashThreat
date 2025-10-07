@@ -6,11 +6,13 @@ from sqlalchemy.pool import NullPool
 from app.core.config import settings
 
 # Create optimized async engine with connection pooling
+# Note: For async engines, we use NullPool with connection pooling handled by the database
 engine = create_async_engine(
     str(settings.POSTGRES_DSN),
     echo=False,
     future=True,
-    poolclass=NullPool,  # NullPool doesn't support pool configuration parameters
+    poolclass=NullPool,  # NullPool is required for async engines
+    # Connection pooling is handled by the database connection string
 )
 
 # Create async session factory

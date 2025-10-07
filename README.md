@@ -1,6 +1,10 @@
-# FlashThreat
+# Flash Intelligence
 
-A production-ready, enterprise-grade threat intelligence analysis platform that aggregates data from multiple security providers to analyze Indicators of Compromise (IOCs).
+**Owner**: Naeem  
+**Version**: 2.0.0  
+**Status**: Production Ready ✅
+
+A production-ready, enterprise-grade threat intelligence analysis platform that aggregates data from multiple security providers to analyze Indicators of Compromise (IOCs). Built with modern security practices and optimized for enterprise deployment.
 
 ## 🚀 Features
 
@@ -12,11 +16,12 @@ A production-ready, enterprise-grade threat intelligence analysis platform that 
 - **History Tracking**: Complete audit trail of analyses with detailed results
 
 ### Enterprise Features
-- **Advanced Security**: Rate limiting, input sanitization, XSS protection, and security headers
+- **Advanced Security**: Rate limiting, input sanitization, XSS protection, CSRF protection, and security headers
 - **Comprehensive Monitoring**: System health checks, performance metrics, and error tracking
 - **Mobile Optimized**: Responsive design with touch-friendly interface
-- **Production Ready**: Connection pooling, memory optimization, and error handling
-- **Comprehensive Testing**: Integration tests, security tests, and performance validation
+- **Production Ready**: Database connection pooling, memory optimization, and comprehensive error handling
+- **Comprehensive Testing**: Integration tests, security tests, performance tests, and end-to-end testing
+- **Clean Architecture**: Optimized codebase with unnecessary files removed for better maintainability
 
 ## Supported Providers
 
@@ -62,17 +67,22 @@ A production-ready, enterprise-grade threat intelligence analysis platform that 
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/yourusername/flashthreat.git
-   cd flashthreat
+   git clone https://github.com/NaeeemJatt/flash-intelligence.git
+   cd flash-intelligence
    ```
 
 2. **Create environment file:**
    ```bash
-   cp .env.example .env
+   cp env.example .env
    ```
 
 3. **Configure API keys in `.env`:**
    ```bash
+   # Security (CRITICAL: Use strong, unique secrets)
+   JWT_SECRET=your_jwt_secret_key_here_minimum_32_characters
+   POSTGRES_PASSWORD=your_secure_database_password
+   
+   # API Keys (Get these from the respective services)
    VT_API_KEY=your_virustotal_api_key
    ABUSEIPDB_API_KEY=your_abuseipdb_api_key
    SHODAN_API_KEY=your_shodan_api_key
@@ -93,6 +103,24 @@ A production-ready, enterprise-grade threat intelligence analysis platform that 
    - **Frontend**: http://localhost:3000
    - **API Documentation**: http://localhost:8000/docs
    - **Health Check**: http://localhost:8000/api/providers/health
+
+### 🔒 Security Notice
+
+**IMPORTANT**: Before deploying to production:
+
+1. **Change all default passwords and secrets**
+2. **Use strong, unique JWT secrets (minimum 32 characters)**
+3. **Configure proper CORS origins for your domain**
+4. **Enable SSL/TLS encryption**
+5. **Review production deployment documentation for security best practices**
+
+**Security Features Implemented:**
+- ✅ CSRF protection middleware
+- ✅ XSS protection and input sanitization
+- ✅ Rate limiting (60 req/min, 1000 req/hour)
+- ✅ Security headers (CSP, HSTS, X-Frame-Options)
+- ✅ File upload validation and security
+- ✅ Database connection pooling and optimization
 
 ### Default Users
 
@@ -163,7 +191,7 @@ poetry run pytest tests/test_security.py
 - **[API Documentation](docs/API_DOCUMENTATION.md)**: Complete REST API reference
 - **[User Guide](docs/USER_GUIDE.md)**: End-user documentation
 - **[Developer Guide](docs/DEVELOPER_GUIDE.md)**: Technical documentation for contributors
-- **[Project Analysis](PROJECT_ANALYSIS_REMAINING.md)**: Remaining areas for improvement
+- **[Changelog](CHANGELOG.md)**: Project history and updates
 
 ## 🔒 Security Features
 
@@ -173,18 +201,27 @@ poetry run pytest tests/test_security.py
 - **Authentication**: JWT-based with role-based access control
 - **Error Handling**: Secure error responses without information leakage
 
-## License
+## 📄 License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## Acknowledgements
+**Copyright (c) 2024 Naeem**
 
-- [FastAPI](https://fastapi.tiangolo.com/)
-- [React](https://reactjs.org/)
-- [SQLAlchemy](https://www.sqlalchemy.org/)
-- [Redis](https://redis.io/)
-- [VirusTotal](https://www.virustotal.com/)
-- [AbuseIPDB](https://www.abuseipdb.com/)
-- [Shodan](https://www.shodan.io/)
-- [AlienVault OTX](https://otx.alienvault.com/)
+## 👨‍💻 Owner & Contact
+
+**Project Owner**: Naeem  
+**Repository**: https://github.com/NaeeemJatt/flash-intelligence  
+**Version**: 2.0.0  
+**Last Updated**: December 2024
+
+## 🙏 Acknowledgements
+
+- [FastAPI](https://fastapi.tiangolo.com/) - Modern Python web framework
+- [React](https://reactjs.org/) - JavaScript library for building user interfaces
+- [SQLAlchemy](https://www.sqlalchemy.org/) - Python SQL toolkit and ORM
+- [Redis](https://redis.io/) - In-memory data structure store
+- [VirusTotal](https://www.virustotal.com/) - Threat intelligence platform
+- [AbuseIPDB](https://www.abuseipdb.com/) - IP reputation database
+- [Shodan](https://www.shodan.io/) - Search engine for Internet-connected devices
+- [AlienVault OTX](https://otx.alienvault.com/) - Open Threat Exchange platform
 

@@ -1,10 +1,15 @@
 import React from 'react';
-import { Outlet, NavLink } from 'react-router-dom';
+import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../lib/auth';
 import styles from './Layout.module.css';
 
 const Layout = () => {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleProfileClick = () => {
+    navigate('/profile');
+  };
 
   return (
     <div className={styles.layout}>
@@ -24,8 +29,14 @@ const Layout = () => {
         <div className={styles.user}>
           {user && (
             <>
-              <span className={styles.email}>{user.email}</span>
-              <span className={styles.role}>{user.role}</span>
+              <button 
+                className={styles.profileButton} 
+                onClick={handleProfileClick}
+              >
+                <div className={styles.profileIcon}>
+                  {user.email?.charAt(0).toUpperCase()}
+                </div>
+              </button>
               <button className={styles.logoutButton} onClick={logout}>
                 Logout
               </button>
@@ -33,6 +44,8 @@ const Layout = () => {
           )}
         </div>
       </header>
+
+
       <main className={styles.main}>
         <Outlet />
       </main>

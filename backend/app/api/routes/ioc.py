@@ -16,6 +16,8 @@ from app.services.aggregator import FlashThreatAggregator
 from app.services.cache import RedisCache
 from app.api.routes.auth import get_current_user
 from app.models.user import User
+from app.models.lookup import Lookup
+from app.models.ioc import IOC
 
 router = APIRouter()
 
@@ -167,8 +169,6 @@ async def get_lookup(
     """
     from sqlalchemy import select
     from app.models.lookup import Lookup, ProviderResult, Note
-    from app.models.ioc import IOC
-    from app.models.user import User
     import uuid
     
     try:
@@ -266,53 +266,45 @@ async def get_lookup_history(
         List of lookup history records
     """
     from sqlalchemy import select, desc
-    from app.models.lookup import Lookup
-    from app.models.ioc import IOC
     
-    # Build query
-    query = select(Lookup).order_by(desc(Lookup.created_at))
+    # Get related data efficiently with joins
+    from sqlalchemy.orm import selectinload
+    
+    # Use selectinload to fetch related data in one query
+    query_with_relations = select(Lookup).options(
+        selectinload(Lookup.ioc),
+        selectinload(Lookup.user)
+    ).order_by(desc(Lookup.created_at))
     
     # Apply user filter based on role
     if current_user.role.value == "admin":
-        # Admin can see all lookups or filter by specific user
         if user_id:
-            query = query.where(Lookup.user_id == user_id)
+            query_with_relations = query_with_relations.where(Lookup.user_id == user_id)
     else:
-        # Analyst can only see their own lookups
-        query = query.where(Lookup.user_id == current_user.id)
+        query_with_relations = query_with_relations.where(Lookup.user_id == current_user.id)
     
     # Apply pagination
-    query = query.offset(offset).limit(limit)
+    query_with_relations = query_with_relations.offset(offset).limit(limit)
     
-    # Execute query
-    result = await db.execute(query)
-    lookups = result.scalars().all()
+    # Execute query with relations
+    result_with_relations = await db.execute(query_with_relations)
+    lookups_with_relations = result_with_relations.scalars().all()
     
-    # Get related data for each lookup
+    # Build history records
     history_records = []
-    for lookup in lookups:
-        # Get IOC details
-        ioc_stmt = select(IOC).where(IOC.id == lookup.ioc_id)
-        ioc_result = await db.execute(ioc_stmt)
-        ioc = ioc_result.scalar_one_or_none()
-        
-        # Get user details
-        user_stmt = select(User).where(User.id == lookup.user_id)
-        user_result = await db.execute(user_stmt)
-        user = user_result.scalar_one_or_none()
-        
+    for lookup in lookups_with_relations:
         history_records.append({
             "id": str(lookup.id),
             "ioc": {
-                "id": str(ioc.id) if ioc else None,
-                "value": ioc.value if ioc else None,
-                "type": ioc.type.value if ioc else None,
-            } if ioc else None,
+                "id": str(lookup.ioc.id) if lookup.ioc else None,
+                "value": lookup.ioc.value if lookup.ioc else None,
+                "type": lookup.ioc.type.value if lookup.ioc else None,
+            } if lookup.ioc else None,
             "user": {
-                "id": str(user.id) if user else None,
-                "email": user.email if user else None,
-                "role": user.role.value if user else None,
-            } if user else None,
+                "id": str(lookup.user.id) if lookup.user else None,
+                "email": lookup.user.email if lookup.user else None,
+                "role": lookup.user.role.value if lookup.user else None,
+            } if lookup.user else None,
             "started_at": lookup.started_at.isoformat() if lookup.started_at else None,
             "finished_at": lookup.finished_at.isoformat() if lookup.finished_at else None,
             "score": lookup.score,
@@ -368,14 +360,20 @@ async def submit_bulk_job(
         if not file:
             raise HTTPException(status_code=400, detail="No file provided")
         
-        if not file.filename.endswith('.csv'):
+        # Validate file type by content, not just extension
+        if not file.filename or not file.filename.lower().endswith('.csv'):
             raise HTTPException(status_code=400, detail="File must be a CSV")
         
-        # Read file content
+        # Read file content for validation
         file_content = await file.read()
         
         if len(file_content) == 0:
             raise HTTPException(status_code=400, detail="Empty file")
+        
+        # Check for CSV-like content (comma-separated values)
+        first_line = file_content.split(b'\n')[0].decode('utf-8', errors='ignore')
+        if ',' not in first_line and '\t' not in first_line:
+            raise HTTPException(status_code=400, detail="File does not appear to be a valid CSV")
         
         if len(file_content) > 10 * 1024 * 1024:  # 10MB limit
             raise HTTPException(status_code=400, detail="File too large (max 10MB)")

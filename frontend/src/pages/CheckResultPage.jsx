@@ -10,11 +10,7 @@ const CheckResultPage = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState(null);
-  const [providerResults, setProviderResults] = useState({
-    virustotal: null,
-    abuseipdb: null,
-    otx: null,
-  });
+  const [providerResults, setProviderResults] = useState({});
   const [closeStream, setCloseStream] = useState(null);
   const [error, setError] = useState(null);
 
@@ -38,11 +34,7 @@ const CheckResultPage = () => {
     setIsLoading(true);
     setResult(null);
     setError(null);
-    setProviderResults({
-      virustotal: null,
-      abuseipdb: null,
-      otx: null,
-    });
+    setProviderResults({});
 
     // Close existing stream if any
     if (closeStream) {
@@ -83,21 +75,28 @@ const CheckResultPage = () => {
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <button onClick={handleBackToHome} className={styles.backButton}>
-          ← Back to Home
-        </button>
-        <h1 className={styles.title}>IOC Analysis Results</h1>
-        <div className={styles.iocDisplay}>
-          <span className={styles.iocLabel}>Analyzing:</span>
-          <span className={styles.iocValue}>{ioc}</span>
+        <div className={styles.headerButtons}>
+          <button onClick={handleBackToHome} className={styles.backButton}>
+            ← Back to Home
+          </button>
+          {result && (
+            <button 
+              onClick={() => handleIocCheck(ioc, true)} 
+              className={styles.refreshButton}
+              disabled={isLoading}
+            >
+              {isLoading ? 'Refreshing...' : 'Refresh Analysis'}
+            </button>
+          )}
         </div>
+        <h1 className={styles.title}>IOC Analysis Results</h1>
       </div>
 
 
       {error && (
         <div className={styles.error}>
           <h3>Analysis Error</h3>
-          <p>{error}</p>
+          <p>{error.replace(/<[^>]*>/g, '')}</p>
           <button onClick={() => handleIocCheck(ioc, true)} className={styles.retryButton}>
             Retry Analysis
           </button>
@@ -120,24 +119,13 @@ const CheckResultPage = () => {
           />
 
           <div className={styles.providerGrid}>
-            <ProviderCard provider="virustotal" data={providerResults.virustotal} />
-            <ProviderCard provider="abuseipdb" data={providerResults.abuseipdb} />
-            <ProviderCard provider="otx" data={providerResults.otx} />
+            {Object.entries(providerResults).map(([provider, data]) => (
+              <ProviderCard key={provider} provider={provider} data={data} />
+            ))}
           </div>
         </>
       )}
 
-      {result && (
-        <div className={styles.actions}>
-          <button 
-            onClick={() => handleIocCheck(ioc, true)} 
-            className={styles.refreshButton}
-            disabled={isLoading}
-          >
-            {isLoading ? 'Refreshing...' : 'Refresh Analysis'}
-          </button>
-        </div>
-      )}
     </div>
   );
 };

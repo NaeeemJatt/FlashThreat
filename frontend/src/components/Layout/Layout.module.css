@@ -126,29 +126,41 @@
   display: flex;
   align-items: center;
   gap: 1rem;
+  position: relative;
 }
 
-.email {
-  color: var(--text-secondary);
-  font-size: 0.875rem;
-  font-weight: 500;
+.profileButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  position: relative;
 }
 
-.role {
+.profileButton:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: scale(1.05);
+}
+
+.profileIcon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
   background: var(--gradient-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  font-weight: 700;
   color: white;
-  padding: 0.375rem 0.875rem;
-  border-radius: 20px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
   box-shadow: var(--shadow-md);
   transition: all 0.3s ease;
 }
 
-.role:hover {
-  transform: translateY(-1px);
+.profileButton:hover .profileIcon {
+  transform: scale(1.1);
   box-shadow: var(--shadow-lg);
 }
 
@@ -186,6 +198,7 @@
 .logoutButton:hover::before {
   left: 100%;
 }
+
 
 .main {
   flex: 1;
@@ -231,14 +244,10 @@
     align-items: center;
   }
   
-  .email {
-    font-size: 0.8rem;
-    text-align: center;
-  }
-  
-  .role {
-    font-size: 0.7rem;
-    padding: 0.25rem 0.5rem;
+  .profileIcon {
+    width: 35px;
+    height: 35px;
+    font-size: 0.875rem;
   }
   
   .logoutButton {
@@ -280,13 +289,10 @@
     gap: 0.25rem;
   }
   
-  .email {
+  .profileIcon {
+    width: 30px;
+    height: 30px;
     font-size: 0.75rem;
-  }
-  
-  .role {
-    font-size: 0.65rem;
-    padding: 0.2rem 0.4rem;
   }
   
   .logoutButton {

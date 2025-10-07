@@ -15,35 +15,36 @@ sys.path.insert(0, str(backend_dir))
 
 from alembic.config import Config
 from alembic import command
+from sqlalchemy import text
 from app.core.config import settings
-from app.db.base import engine
+from app.db.base import engine, Base
 from app.models import *  # Import all models to ensure they're registered
 
 
 async def init_database():
     """Initialize the database with all tables and data."""
-    print("🚀 Initializing FlashThreat database...")
+    print("Initializing FlashThreat database...")
     
     try:
         # Check if database is accessible
         async with engine.begin() as conn:
-            await conn.execute("SELECT 1")
-        print("✅ Database connection successful")
+            await conn.execute(text("SELECT 1"))
+        print("Database connection successful")
         
-        # Run Alembic migrations
-        print("📦 Running database migrations...")
-        alembic_cfg = Config("alembic.ini")
-        command.upgrade(alembic_cfg, "head")
-        print("✅ Database migrations completed")
+        # Create database tables
+        print("Creating database tables...")
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+        print("Database tables created")
         
         # Create initial admin user if it doesn't exist
-        print("👤 Creating initial admin user...")
+        print("Creating initial admin user...")
         await create_initial_users()
         
-        print("🎉 Database initialization completed successfully!")
+        print("Database initialization completed successfully!")
         
     except Exception as e:
-        print(f"❌ Database initialization failed: {e}")
+        print(f"Database initialization failed: {e}")
         sys.exit(1)
 
 
@@ -70,9 +71,9 @@ async def create_initial_users():
                 role=UserRole.ADMIN
             )
             session.add(admin_user)
-            print("✅ Created admin user (admin@flashthreat.local / admin123)")
+            print("Created admin user (admin@flashthreat.local / admin123)")
         else:
-            print("ℹ️  Admin user already exists")
+            print("Admin user already exists")
         
         # Check if analyst user exists
         analyst_result = await session.execute(
@@ -87,9 +88,9 @@ async def create_initial_users():
                 role=UserRole.ANALYST
             )
             session.add(analyst_user)
-            print("✅ Created analyst user (analyst@flashthreat.local / analyst123)")
+            print("Created analyst user (analyst@flashthreat.local / analyst123)")
         else:
-            print("ℹ️  Analyst user already exists")
+            print("Analyst user already exists")
         
         await session.commit()
 

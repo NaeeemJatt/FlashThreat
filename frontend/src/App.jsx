@@ -7,32 +7,44 @@ import BulkPage from './pages/BulkPage';
 import HistoryPage from './pages/HistoryPage';
 import CheckResultPage from './pages/CheckResultPage';
 import ApiDataPage from './pages/ApiDataPage';
+import ProfilePage from './pages/ProfilePage';
+import AdminDashboard from './pages/AdminDashboard';
 import LoginPage from './pages/LoginPage';
 import { AuthProvider } from './lib/auth';
 import ProtectedRoute from './components/Auth/ProtectedRoute';
+import AdminRoute from './components/Auth/AdminRoute';
+import ErrorBoundary from './components/ErrorBoundary/ErrorBoundary';
 
 function App() {
   return (
-    <AuthProvider>
-      <Routes>
-        <Route path="/login" element={<LoginPage />} />
-        <Route
-          path="/"
-          element={
-            <ProtectedRoute>
-              <Layout />
-            </ProtectedRoute>
-          }
-        >
-          <Route index element={<HomePage />} />
-          <Route path="bulk" element={<BulkPage />} />
-          <Route path="history" element={<HistoryPage />} />
-          <Route path="result/:ioc" element={<CheckResultPage />} />
-          <Route path="api-data/:ioc?" element={<ApiDataPage />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Route>
-      </Routes>
-    </AuthProvider>
+    <ErrorBoundary>
+      <AuthProvider>
+        <Routes>
+          <Route path="/login" element={<LoginPage />} />
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <Layout />
+              </ProtectedRoute>
+            }
+          >
+            <Route index element={<HomePage />} />
+            <Route path="bulk" element={<BulkPage />} />
+            <Route path="history" element={<HistoryPage />} />
+            <Route path="profile" element={<ProfilePage />} />
+            <Route path="admin" element={
+              <AdminRoute>
+                <AdminDashboard />
+              </AdminRoute>
+            } />
+            <Route path="result/:ioc" element={<CheckResultPage />} />
+            <Route path="api-data/:ioc?" element={<ApiDataPage />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Route>
+        </Routes>
+      </AuthProvider>
+    </ErrorBoundary>
   );
 }
 
