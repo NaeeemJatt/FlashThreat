@@ -67,8 +67,8 @@ A production-ready, enterprise-grade threat intelligence analysis platform that 
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/NaeeemJatt/flash-intelligence.git
-   cd flash-intelligence
+   git clone https://github.com/NaeeemJatt/FlashThreat.git
+   cd FlashThreat
    ```
 
 2. **Create environment file:**
@@ -210,7 +210,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 👨‍💻 Owner & Contact
 
 **Project Owner**: Naeem  
-**Repository**: https://github.com/NaeeemJatt/flash-intelligence  
+**Repository**: https://github.com/NaeeemJatt/FlashThreat  
 **Version**: 2.0.0  
 **Last Updated**: December 2024
 

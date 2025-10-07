@@ -2,7 +2,7 @@
 
 **Project**: Flash Intelligence  
 **Owner**: Naeem  
-**Repository**: https://github.com/NaeeemJatt/flash-intelligence
+**Repository**: https://github.com/NaeeemJatt/FlashThreat
 
 All notable changes to Flash Intelligence will be documented in this file.
 
